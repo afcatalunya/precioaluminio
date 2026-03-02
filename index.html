@@ -120,7 +120,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       <div class="cvr" style="border-bottom:none"><span class="a">Libra (lb)</span><span class="b" id="cLu">—</span><span class="d" id="cLe">—</span></div>
     </div>
     <div class="ft"><span id="ts">—</span><span>Auto-refresh cada 30 min</span></div>
-    <div class="disc">ALUMINIOS FRANCO S.A. · PRECIOS ORIENTATIVOS · NO CONSTITUYE ASESORAMIENTO FINANCIERO</div>
+    <div class="disc">ALUMINIOS FRANCO S.A. · ALUMINIO LME 3M · PRECIOS ORIENTATIVOS · NO CONSTITUYE ASESORAMIENTO FINANCIERO</div>
   </div>
 </div>
 <script>
@@ -140,19 +140,17 @@ async function fetchData(){
   setStatus('load');
   $('ebox').style.display='none';
   try{
-    // ONE single API call — latest endpoint has BOTH lme_aluminum price AND EUR rate
+    // ONE single API call — latest endpoint has BOTH aluminum spot price AND EUR rate
     // For industrial metals, default unit is metric tonne (mt)
     var r=await fetch('https://api.metals.dev/v1/latest?api_key='+API_KEY+'&currency=USD');
     if(!r.ok)throw new Error('Error API: HTTP '+r.status);
     var j=await r.json();
     if(j.status!=='success')throw new Error(j.error_message||'Error API');
 
-    // lme_aluminum is in USD per troy ounce → convert to per metric tonne
-    // 1 metric tonne = 32,150.7466 troy ounces
-    var lmeAlToz=j.metals&&j.metals.lme_aluminum;
-    if(!lmeAlToz)throw new Error('lme_aluminum no encontrado en respuesta');
-    // lme_aluminum is already in USD per metric tonne (industrial metals default unit = mt)
-    var priceUsd=lmeAlToz;
+    // LME Aluminum 3M futures — USD per metric tonne (lo más cercano a Investing.com MAL3)
+    var lmePrice=j.metals&&j.metals.lme_aluminum;
+    if(!lmePrice)throw new Error('lme_aluminum no encontrado en respuesta');
+    var priceUsd=lmePrice;
 
     // EUR rate: currencies.EUR = how many USD is 1 EUR (e.g. 1.1738)
     var eurUsdRate=j.currencies&&j.currencies.EUR;
