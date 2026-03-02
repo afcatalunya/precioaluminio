@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aluminios Franco — Cotización Aluminio LME en Tiempo Real</title>
+<title>Aluminios Franco — Cotización Aluminio LME</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f4f6f0;--card:#ffffff;--border:#d4dcc8;--green:#1a7a3a;--green2:#2a9d4e;--greenL:#e8f5e9;--red:#cc3333;--blue:#1565a0;--accent:#1a7a3a;--dim:#6b7a60;--text:#1a2e10;--mono:'JetBrains Mono','Fira Code','Courier New',monospace;--sans:'Inter',-apple-system,'Segoe UI',sans-serif}
+:root{--bg:#f4f6f0;--card:#fff;--border:#d4dcc8;--green:#1a7a3a;--green2:#2a9d4e;--greenL:#e8f5e9;--red:#cc3333;--blue:#1565a0;--dim:#6b7a60;--text:#1a2e10;--mono:'JetBrains Mono','Fira Code','Courier New',monospace;--sans:'Inter',-apple-system,'Segoe UI',sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh}
 .wrap{max-width:1000px;margin:0 auto;padding:20px 20px 50px}
@@ -24,8 +24,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .badge.load{background:#fff8e1;border:1px solid #ffe082;color:#e65100}.badge.load i{background:#ff9800;animation:blink 1s infinite}
 .badge.err{background:#ffebee;border:1px solid #ef9a9a;color:var(--red)}.badge.err i{background:var(--red)}
 .btn{background:var(--green);border:none;color:#fff;padding:8px 18px;border-radius:8px;cursor:pointer;font:600 11px var(--mono);transition:all .2s;display:flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(26,122,58,.2)}
-.btn:hover{background:var(--green2);box-shadow:0 4px 12px rgba(26,122,58,.3)}.btn:disabled{opacity:.5;cursor:wait}
+.btn:hover{background:var(--green2)}.btn:disabled{opacity:.5;cursor:wait}
 .btn.spin .ic{animation:spin 1s linear infinite}
+.quota{font:500 9px var(--mono);color:#aab89e;text-align:center;margin-bottom:14px;padding:6px 12px;background:#fff;border-radius:8px;border:1px solid var(--border)}
 .ubar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
 .ugrp{display:flex;gap:6px;align-items:center}
 .ugrp span{font:600 10px var(--mono);color:var(--dim);letter-spacing:1.5px;margin-right:4px}
@@ -79,6 +80,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       <button class="btn" id="rbtn" onclick="refresh()"><span class="ic">⟳</span> ACTUALIZAR</button>
     </div>
   </header>
+  <div class="quota" id="quotaInfo">⚡ Plan gratuito: 1 sola llamada API por consulta · Auto-refresh cada 30 min para ahorrar quota</div>
   <div class="ebox" id="ebox"></div>
   <div id="skel" class="g3">
     <div class="skel"><div class="sk" style="width:90px;height:10px;margin-bottom:22px"></div><div class="sk" style="width:180px;height:36px"></div></div>
@@ -88,7 +90,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
   <div id="main" style="display:none">
     <div class="ubar">
       <div class="ugrp"><span>UNIDAD:</span><button class="ubtn on" id="bTn" onclick="setU('tn')">TONELADA</button><button class="ubtn" id="bKg" onclick="setU('kg')">KILOGRAMO</button></div>
-      <span class="cd" id="cd">Próxima actualización: 5:00</span>
+      <span class="cd" id="cd">Próxima actualización: 30:00</span>
     </div>
     <div class="g3">
       <div class="c" style="animation-delay:0s">
@@ -115,34 +117,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
         </div>
       </div>
     </div>
-    <div class="g2" id="hlSec" style="display:none">
-      <div class="c" style="animation-delay:.2s">
-        <div class="bar" style="background:linear-gradient(90deg,var(--green2),transparent)"></div>
-        <div class="lb">Máximo del Día</div>
-        <div class="pr" id="hiU" style="color:var(--green)">—</div>
-        <div class="sub" id="hiE">—</div>
-      </div>
-      <div class="c" style="animation-delay:.24s">
-        <div class="bar" style="background:linear-gradient(90deg,var(--red),transparent)"></div>
-        <div class="lb">Mínimo del Día</div>
-        <div class="pr" id="loU" style="color:var(--red)">—</div>
-        <div class="sub" id="loE">—</div>
-      </div>
-    </div>
-    <div class="c" style="animation-delay:.28s;margin-bottom:18px">
+    <div class="c" style="animation-delay:.2s;margin-bottom:18px">
       <div class="lb">Tabla de Conversión</div>
       <div class="cvh"><span>UNIDAD</span><span>USD</span><span>EUR</span></div>
       <div class="cvr"><span class="a">Tonelada</span><span class="b" id="cTu">—</span><span class="d" id="cTe">—</span></div>
       <div class="cvr"><span class="a">Kilogramo</span><span class="b" id="cKu">—</span><span class="d" id="cKe">—</span></div>
       <div class="cvr" style="border-bottom:none"><span class="a">Libra (lb)</span><span class="b" id="cLu">—</span><span class="d" id="cLe">—</span></div>
     </div>
-    <div class="ft"><span id="ts">—</span><span>Auto-refresh cada 5 min</span></div>
+    <div class="ft"><span id="ts">—</span><span>Auto-refresh cada 30 min · 1 llamada API por consulta</span></div>
     <div class="disc">ALUMINIOS FRANCO S.A. · PRECIOS ORIENTATIVOS · NO CONSTITUYE ASESORAMIENTO FINANCIERO</div>
   </div>
 </div>
 <script>
 var API_KEY='JUKFYIPA8OXPLT4BCDQD2074BCDQD';
-var D=null,unit='tn',cdSec=300,cdInt,rfInt;
+var REFRESH_MS=30*60*1000; // 30 minutes to save quota
+var D=null,unit='tn',cdSec=1800,cdInt,rfInt;
 function $(id){return document.getElementById(id)}
 function fm(n,d){if(n==null||isNaN(n))return'—';d=d||2;return Number(n).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d})}
 function fmDate(iso){if(!iso)return'—';try{var d=new Date(iso);return d.toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'})}catch(e){return iso}}
@@ -158,46 +147,38 @@ async function fetchData(){
   setStatus('load');
   $('ebox').style.display='none';
   try{
-    // 1) Spot aluminum - returns price per metric tonne for industrial metals
-    var r1=await fetch('https://api.metals.dev/v1/metal/spot?api_key='+API_KEY+'&metal=aluminum&currency=USD');
-    if(!r1.ok)throw new Error('Error API spot: HTTP '+r1.status);
-    var j1=await r1.json();
-    if(j1.status!=='success')throw new Error(j1.error_message||'Error API spot');
-    var rt=j1.rate;
-    var spotTimestamp=j1.timestamp||'';
+    // ONE single API call — latest endpoint has BOTH lme_aluminum price AND EUR rate
+    // For industrial metals, default unit is metric tonne (mt)
+    var r=await fetch('https://api.metals.dev/v1/latest?api_key='+API_KEY+'&currency=USD');
+    if(!r.ok)throw new Error('Error API: HTTP '+r.status);
+    var j=await r.json();
+    if(j.status!=='success')throw new Error(j.error_message||'Error API');
 
-    // Price already in USD per metric tonne
-    var priceUsd=rt.price;
-    var highUsd=rt.high||0;
-    var lowUsd=rt.low||0;
-    var changeUsd=rt.change||0;
-    var changePct=rt.change_percent||0;
+    // lme_aluminum is in USD per troy ounce → convert to per metric tonne
+    // 1 metric tonne = 32,150.7466 troy ounces
+    var lmeAlToz=j.metals&&j.metals.lme_aluminum;
+    if(!lmeAlToz)throw new Error('lme_aluminum no encontrado en respuesta');
+    var priceUsd=lmeAlToz*32150.7466;
 
-    // 2) Latest rates for EUR
-    var r2=await fetch('https://api.metals.dev/v1/latest?api_key='+API_KEY+'&currency=USD');
-    if(!r2.ok)throw new Error('Error API latest: HTTP '+r2.status);
-    var j2=await r2.json();
-    if(j2.status!=='success')throw new Error(j2.error_message||'Error API latest');
+    // Also get spot aluminum for comparison (already per toz too)
+    var spotAlToz=j.metals&&j.metals.aluminum;
 
-    // currencies.EUR = how many USD per 1 EUR (e.g. 1.1738)
-    // So 1 USD = 1/EUR euros (e.g. 1/1.1738 = 0.8520 EUR)
-    var eurUsdRate=j2.currencies&&j2.currencies.EUR; // EUR/USD rate e.g. 1.1738
+    // EUR rate: currencies.EUR = how many USD is 1 EUR (e.g. 1.1738)
+    var eurUsdRate=j.currencies&&j.currencies.EUR;
     if(!eurUsdRate)throw new Error('EUR no encontrado');
-    var usdToEur=1/eurUsdRate; // how many EUR per 1 USD e.g. 0.8520
-    var fxTimestamp=j2.timestamps&&(j2.timestamps.currency||j2.timestamps.metal)||'';
+    var usdToEur=1/eurUsdRate; // e.g. 0.8520
 
-    // Convert prices to EUR: price_usd * usdToEur
     var priceEur=priceUsd*usdToEur;
-    var highEur=highUsd*usdToEur;
-    var lowEur=lowUsd*usdToEur;
+
+    var metalTs=j.timestamps&&j.timestamps.metal||'';
+    var fxTs=j.timestamps&&j.timestamps.currency||'';
 
     D={priceUsd:priceUsd,priceEur:priceEur,eurUsdRate:eurUsdRate,usdToEur:usdToEur,
-       change:changeUsd,changePct:changePct,high:highUsd,low:lowUsd,
-       highEur:highEur,lowEur:lowEur,spotTs:spotTimestamp,fxTs:fxTimestamp};
+       metalTs:metalTs,fxTs:fxTs};
 
     updateUI();
     setStatus('live');
-    cdSec=300;
+    cdSec=1800;
     $('skel').style.display='none';
     $('main').style.display='block';
   }catch(e){
@@ -217,29 +198,15 @@ function updateUI(){
   $('uUsd').textContent='USD '+ul;
   $('uEur').textContent='EUR '+ul;
 
-  // FX display: show EUR/USD pair rate (e.g. 1.1738)
   $('fxR').textContent=fm(D.eurUsdRate,4);
   $('fx1u').textContent=fm(D.usdToEur,4)+' €';
   $('fx1e').textContent=fm(D.eurUsdRate,4)+' $';
 
-  // API timestamps
-  $('tsSpot').textContent='Dato API: '+fmDate(D.spotTs);
-  $('tsFx').textContent='Dato API: '+fmDate(D.fxTs);
+  $('tsSpot').textContent='Dato metal API: '+fmDate(D.metalTs);
+  $('tsFx').textContent='Dato divisa API: '+fmDate(D.fxTs);
 
-  var ch=D.change||0,cp=D.changePct||0,tag=$('chTag');
-  if(ch!==0||cp!==0){
-    var pos=cp>=0;
-    tag.className='ch '+(pos?'pos':'neg');
-    tag.textContent=(pos?'▲':'▼')+' '+(pos?'+':'')+fm(Math.abs(ch)/dv)+' ('+(pos?'+':'')+fm(cp)+'%)';
-    tag.style.display='inline-flex';
-    $('barUsd').style.background='linear-gradient(90deg,'+(pos?'var(--green)':'var(--red)')+',transparent)';
-  }else{tag.style.display='none'}
-
-  if(D.high>0&&D.low>0){
-    $('hlSec').style.display='grid';
-    $('hiU').textContent='$'+fm(D.high/dv);$('hiE').textContent='€'+fm(D.highEur/dv);
-    $('loU').textContent='$'+fm(D.low/dv);$('loE').textContent='€'+fm(D.lowEur/dv);
-  }
+  // No change data from latest endpoint — hide tag
+  $('chTag').style.display='none';
 
   $('cTu').textContent='$'+fm(D.priceUsd);$('cTe').textContent='€'+fm(D.priceEur);
   $('cKu').textContent='$'+fm(D.priceUsd/1000,4);$('cKe').textContent='€'+fm(D.priceEur/1000,4);
@@ -248,9 +215,9 @@ function updateUI(){
 }
 
 function setU(u){unit=u;$('bTn').className='ubtn'+(u==='tn'?' on':'');$('bKg').className='ubtn'+(u==='kg'?' on':'');updateUI()}
-function refresh(){cdSec=300;fetchData()}
+function refresh(){cdSec=1800;fetchData()}
 cdInt=setInterval(function(){cdSec=Math.max(0,cdSec-1);var m=Math.floor(cdSec/60),s=String(cdSec%60).padStart(2,'0');$('cd').textContent='Próxima actualización: '+m+':'+s},1000);
-rfInt=setInterval(function(){cdSec=300;fetchData()},300000);
+rfInt=setInterval(function(){cdSec=1800;fetchData()},REFRESH_MS);
 fetchData();
 </script>
 </body>
