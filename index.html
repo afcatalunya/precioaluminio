@@ -7,577 +7,227 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0c10;
-    --card: #12151c;
-    --card2: #0f1118;
-    --border: #1c1f28;
-    --accent: #b0b8c8;
-    --green: #00e87b;
-    --red: #ff4455;
-    --blue: #6b7fff;
-    --text: #e0e0e0;
-    --dim: #555;
-    --mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    --sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  .container { max-width: 980px; margin: 0 auto; padding: 20px 20px 50px; position: relative; z-index: 1; }
-
-  /* HEADER */
-  .header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding-bottom: 18px; margin-bottom: 24px; border-bottom: 1px solid var(--border);
-    flex-wrap: wrap; gap: 14px;
-  }
-  .logo-area { display: flex; align-items: center; gap: 14px; }
-  .logo-icon {
-    width: 46px; height: 46px; border-radius: 11px;
-    background: linear-gradient(135deg, #d0d0d0, #707070);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 18px; color: #111; font-family: var(--mono);
-    box-shadow: 0 3px 15px rgba(180,180,180,0.12);
-  }
-  .logo-title { font-size: 21px; font-weight: 800; color: #f0f0f0; letter-spacing: -0.5px; }
-  .logo-title span { color: var(--accent); }
-  .logo-sub { font-size: 10px; color: #3a3d45; font-family: var(--mono); letter-spacing: 1.5px; margin-top: 2px; }
-
-  .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-  /* STATUS BADGE */
-  .status {
-    display: inline-flex; align-items: center; gap: 7px;
-    border-radius: 20px; padding: 5px 14px 5px 10px; font-size: 10px;
-    font-weight: 700; letter-spacing: 1.5px; font-family: var(--mono);
-  }
-  .status.live { background: #00e87b11; border: 1px solid #00e87b33; color: var(--green); }
-  .status.loading { background: #ffaa0011; border: 1px solid #ffaa0033; color: #ffaa00; }
-  .status.error { background: #ff445511; border: 1px solid #ff445533; color: var(--red); }
-  .status-dot {
-    width: 7px; height: 7px; border-radius: 50%; display: inline-block;
-  }
-  .status.live .status-dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
-  .status.loading .status-dot { background: #ffaa00; animation: blink 1s infinite; }
-  .status.error .status-dot { background: var(--red); }
-
-  .btn {
-    background: transparent; border: 1px solid #333; color: #aaa;
-    padding: 7px 16px; border-radius: 8px; cursor: pointer;
-    font-family: var(--mono); font-size: 11px; font-weight: 600;
-    transition: all 0.2s; display: flex; align-items: center; gap: 6px;
-  }
-  .btn:hover { border-color: var(--accent); color: #fff; }
-  .btn:disabled { opacity: 0.4; cursor: wait; }
-  .btn .spinner { display: inline-block; }
-  .btn.loading .spinner { animation: spin 1s linear infinite; }
-
-  /* UNIT TOGGLE */
-  .unit-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
-  }
-  .unit-group { display: flex; gap: 6px; align-items: center; }
-  .unit-label { font-size: 10px; color: #3a3d45; font-family: var(--mono); letter-spacing: 1.5px; margin-right: 4px; }
-  .unit-btn {
-    background: transparent; border: 1px solid #333; color: #555;
-    padding: 5px 14px; border-radius: 6px; cursor: pointer;
-    font-family: var(--mono); font-size: 11px; font-weight: 600; transition: all 0.2s;
-  }
-  .unit-btn.active { background: rgba(176,184,200,0.1); border-color: var(--accent); color: var(--accent); }
-  .countdown { font-size: 10px; color: #2a2d35; font-family: var(--mono); }
-
-  /* CARDS GRID */
-  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; margin-bottom: 18px; }
-  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
-
-  .card {
-    background: linear-gradient(160deg, var(--card) 0%, var(--card2) 100%);
-    border: 1px solid var(--border); border-radius: 14px;
-    padding: 26px 22px; position: relative; overflow: hidden;
-    animation: fadeUp 0.5s ease both; transition: border-color 0.3s, box-shadow 0.3s;
-  }
-  .card:hover { box-shadow: 0 0 25px rgba(176,184,200,0.06); }
-  .card .top-line {
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  }
-  .card-label {
-    font-size: 10px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 2.5px; color: var(--dim); margin-bottom: 14px; font-family: var(--mono);
-  }
-  .card-price {
-    font-size: 40px; font-weight: 800; font-family: var(--mono);
-    letter-spacing: -2px; line-height: 1;
-  }
-  .card-unit {
-    font-size: 13px; color: var(--dim); font-weight: 500;
-    font-family: var(--mono); margin-left: 8px;
-  }
-  .card-sub { font-size: 11px; color: var(--dim); font-family: var(--mono); margin-top: 12px; }
-
-  /* CHANGE TAG */
-  .change-tag {
-    display: inline-flex; align-items: center; gap: 6px;
-    margin-top: 12px; border-radius: 8px; padding: 5px 12px;
-    font-size: 12px; font-weight: 700; font-family: var(--mono);
-  }
-  .change-tag.pos { background: #00e87b12; border: 1px solid #00e87b30; color: var(--green); }
-  .change-tag.neg { background: #ff445512; border: 1px solid #ff445530; color: var(--red); }
-
-  /* FX MINI BOXES */
-  .fx-row { display: flex; gap: 8px; margin-top: 14px; }
-  .fx-box {
-    flex: 1; background: rgba(176,184,200,0.04); border-radius: 8px;
-    padding: 8px 10px; text-align: center;
-  }
-  .fx-box-label { font-size: 9px; color: var(--dim); font-family: var(--mono); letter-spacing: 1px; margin-bottom: 3px; }
-  .fx-box-val { font-size: 13px; font-weight: 700; color: #ccc; font-family: var(--mono); }
-
-  /* CONVERSION TABLE */
-  .conv-header {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    padding: 8px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 2px;
-  }
-  .conv-header span { font-size: 10px; color: #3a3d45; font-family: var(--mono); letter-spacing: 1px; }
-  .conv-header span:not(:first-child) { text-align: right; }
-  .conv-row {
-    display: grid; grid-template-columns: 1fr 1fr 1fr;
-    padding: 12px 0; border-bottom: 1px solid var(--border); align-items: center;
-  }
-  .conv-row .label { font-size: 12px; color: #888; font-family: var(--mono); }
-  .conv-row .usd { font-size: 14px; font-weight: 700; color: var(--text); font-family: var(--mono); text-align: right; }
-  .conv-row .eur { font-size: 14px; font-weight: 700; color: var(--blue); font-family: var(--mono); text-align: right; }
-
-  /* ERROR */
-  .error-box {
-    background: #ff445510; border: 1px solid #ff445530; border-radius: 10px;
-    padding: 12px 16px; margin-bottom: 18px; font-size: 12px; color: #ff6666;
-    font-family: var(--mono);
-  }
-  .error-box .retry { color: #ffaa00; margin-left: 8px; }
-
-  /* SKELETON */
-  .skeleton {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    height: 170px; padding: 26px;
-  }
-  .skel-line { border-radius: 4px; background: #1a1d23; }
-
-  /* FOOTER */
-  .footer {
-    display: flex; justify-content: space-between; flex-wrap: wrap;
-    gap: 10px; padding-top: 14px; border-top: 1px solid var(--border);
-    font-size: 10px; color: #2a2d35; font-family: var(--mono);
-  }
-  .disclaimer {
-    text-align: center; margin-top: 16px; font-size: 9px;
-    color: #181a20; font-family: var(--mono); letter-spacing: 1.5px;
-  }
-
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 600px) {
-    .grid2 { grid-template-columns: 1fr; }
-    .card-price { font-size: 32px; }
-    .header { flex-direction: column; align-items: flex-start; }
-  }
+:root{--bg:#0a0c10;--card:#12151c;--border:#1c1f28;--green:#00e87b;--red:#ff4455;--blue:#6b7fff;--accent:#b0b8c8;--dim:#555;--mono:'JetBrains Mono','Fira Code','Courier New',monospace;--sans:'Inter',-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:#e0e0e0;font-family:var(--sans);min-height:100vh}
+.wrap{max-width:980px;margin:0 auto;padding:20px 20px 50px}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding-bottom:18px;margin-bottom:24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:14px}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-ic{width:46px;height:46px;border-radius:11px;background:linear-gradient(135deg,#d0d0d0,#707070);display:flex;align-items:center;justify-content:center;font:900 18px var(--mono);color:#111;box-shadow:0 3px 15px rgba(180,180,180,.12)}
+.logo h1{font-size:21px;font-weight:800;color:#f0f0f0;letter-spacing:-.5px}
+.logo h1 b{color:var(--accent);font-weight:800}
+.logo p{font:600 10px var(--mono);color:#3a3d45;letter-spacing:1.5px;margin-top:2px}
+.ctrls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:7px;border-radius:20px;padding:5px 14px 5px 10px;font:700 10px var(--mono);letter-spacing:1.5px}
+.badge i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.badge.live{background:#00e87b11;border:1px solid #00e87b33;color:var(--green)}.badge.live i{background:var(--green);box-shadow:0 0 8px var(--green)}
+.badge.load{background:#ffaa0011;border:1px solid #ffaa0033;color:#ffaa00}.badge.load i{background:#ffaa00;animation:blink 1s infinite}
+.badge.err{background:#ff445511;border:1px solid #ff445533;color:var(--red)}.badge.err i{background:var(--red)}
+.btn{background:0;border:1px solid #333;color:#aaa;padding:7px 16px;border-radius:8px;cursor:pointer;font:600 11px var(--mono);transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent);color:#fff}.btn:disabled{opacity:.4;cursor:wait}
+.btn.spin .ic{animation:spin 1s linear infinite}
+.ubar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.ugrp{display:flex;gap:6px;align-items:center}
+.ugrp span{font:600 10px var(--mono);color:#3a3d45;letter-spacing:1.5px;margin-right:4px}
+.ubtn{background:0;border:1px solid #333;color:#555;padding:5px 14px;border-radius:6px;cursor:pointer;font:600 11px var(--mono);transition:all .2s}
+.ubtn.on{background:rgba(176,184,200,.1);border-color:var(--accent);color:var(--accent)}
+.cd{font:500 10px var(--mono);color:#2a2d35}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-bottom:18px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.c{background:linear-gradient(160deg,var(--card),#0f1118);border:1px solid var(--border);border-radius:14px;padding:26px 22px;position:relative;overflow:hidden;animation:up .5s ease both;transition:border-color .3s,box-shadow .3s}
+.c:hover{box-shadow:0 0 25px rgba(176,184,200,.06)}
+.c .bar{position:absolute;top:0;left:0;right:0;height:2px}
+.c .lb{font:700 10px var(--mono);text-transform:uppercase;letter-spacing:2.5px;color:var(--dim);margin-bottom:14px}
+.c .pr{font:800 40px var(--mono);letter-spacing:-2px;line-height:1}
+.c .un{font:500 13px var(--mono);color:var(--dim);margin-left:8px}
+.c .sub{font:500 11px var(--mono);color:var(--dim);margin-top:12px}
+.ch{display:inline-flex;align-items:center;gap:6px;margin-top:12px;border-radius:8px;padding:5px 12px;font:700 12px var(--mono)}
+.ch.pos{background:#00e87b12;border:1px solid #00e87b30;color:var(--green)}
+.ch.neg{background:#ff445512;border:1px solid #ff445530;color:var(--red)}
+.fxr{display:flex;gap:8px;margin-top:14px}
+.fxb{flex:1;background:rgba(176,184,200,.04);border-radius:8px;padding:8px 10px;text-align:center}
+.fxb small{display:block;font:500 9px var(--mono);color:var(--dim);letter-spacing:1px;margin-bottom:3px}
+.fxb strong{font:700 13px var(--mono);color:#ccc}
+.cvh{display:grid;grid-template-columns:1fr 1fr 1fr;padding:8px 0 6px;border-bottom:1px solid var(--border);margin-bottom:2px}
+.cvh span{font:600 10px var(--mono);color:#3a3d45;letter-spacing:1px}.cvh span:not(:first-child){text-align:right}
+.cvr{display:grid;grid-template-columns:1fr 1fr 1fr;padding:12px 0;border-bottom:1px solid var(--border);align-items:center}
+.cvr .a{font:500 12px var(--mono);color:#888}
+.cvr .b{font:700 14px var(--mono);color:#e0e0e0;text-align:right}
+.cvr .d{font:700 14px var(--mono);color:var(--blue);text-align:right}
+.ebox{background:#ff445510;border:1px solid #ff445530;border-radius:10px;padding:12px 16px;margin-bottom:18px;font:500 12px var(--mono);color:#ff6666;display:none}
+.ebox a{color:#ffaa00;margin-left:6px}
+.skel{background:var(--card);border:1px solid var(--border);border-radius:14px;height:170px;padding:26px}
+.sk{border-radius:4px;background:#1a1d23}
+.ft{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:14px;border-top:1px solid var(--border);font:500 10px var(--mono);color:#2a2d35}
+.disc{text-align:center;margin-top:16px;font:500 9px var(--mono);color:#181a20;letter-spacing:1.5px}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.g2{grid-template-columns:1fr}.c .pr{font-size:30px}.hdr{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
-
-<div class="container">
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo-area">
-      <div class="logo-icon">Al</div>
-      <div>
-        <div class="logo-title">ALUMINIO <span>LME</span></div>
-        <div class="logo-sub">LONDON METAL EXCHANGE · COTIZACIÓN EN VIVO</div>
-      </div>
-    </div>
-    <div class="controls">
-      <div id="statusBadge" class="status loading">
-        <span class="status-dot"></span>
-        <span id="statusText">BUSCANDO...</span>
-      </div>
-      <button id="refreshBtn" class="btn" onclick="loadData()">
-        <span class="spinner">⟳</span> ACTUALIZAR
-      </button>
+<div class="wrap">
+  <header class="hdr">
+    <div class="logo"><div class="logo-ic">Al</div><div><h1>ALUMINIO <b>LME</b></h1><p>LONDON METAL EXCHANGE · COTIZACIÓN EN VIVO</p></div></div>
+    <div class="ctrls">
+      <div class="badge load" id="badge"><i></i><span id="badgeTxt">BUSCANDO...</span></div>
+      <button class="btn" id="rbtn" onclick="refresh()"><span class="ic">⟳</span> ACTUALIZAR</button>
     </div>
   </header>
-
-  <!-- ERROR -->
-  <div id="errorBox" class="error-box" style="display:none"></div>
-
-  <!-- SKELETON -->
-  <div id="skeleton" class="grid3">
-    <div class="skeleton"><div class="skel-line" style="width:90px;height:10px;margin-bottom:22px"></div><div class="skel-line" style="width:180px;height:36px"></div></div>
-    <div class="skeleton"><div class="skel-line" style="width:90px;height:10px;margin-bottom:22px"></div><div class="skel-line" style="width:180px;height:36px"></div></div>
-    <div class="skeleton"><div class="skel-line" style="width:90px;height:10px;margin-bottom:22px"></div><div class="skel-line" style="width:180px;height:36px"></div></div>
+  <div class="ebox" id="ebox"></div>
+  <div id="skel" class="g3">
+    <div class="skel"><div class="sk" style="width:90px;height:10px;margin-bottom:22px"></div><div class="sk" style="width:180px;height:36px"></div></div>
+    <div class="skel"><div class="sk" style="width:90px;height:10px;margin-bottom:22px"></div><div class="sk" style="width:180px;height:36px"></div></div>
+    <div class="skel"><div class="sk" style="width:90px;height:10px;margin-bottom:22px"></div><div class="sk" style="width:180px;height:36px"></div></div>
   </div>
-
-  <!-- MAIN CONTENT (hidden until data loads) -->
-  <div id="mainContent" style="display:none">
-
-    <!-- UNIT TOGGLE -->
-    <div class="unit-bar">
-      <div class="unit-group">
-        <span class="unit-label">UNIDAD:</span>
-        <button class="unit-btn active" id="btnTn" onclick="setUnit('tn')">TONELADA</button>
-        <button class="unit-btn" id="btnKg" onclick="setUnit('kg')">KILOGRAMO</button>
-      </div>
-      <span class="countdown" id="countdown">Próxima actualización: 5:00</span>
+  <div id="main" style="display:none">
+    <div class="ubar">
+      <div class="ugrp"><span>UNIDAD:</span><button class="ubtn on" id="bTn" onclick="setU('tn')">TONELADA</button><button class="ubtn" id="bKg" onclick="setU('kg')">KILOGRAMO</button></div>
+      <span class="cd" id="cd">Próxima actualización: 5:00</span>
     </div>
-
-    <!-- PRICE CARDS -->
-    <div class="grid3">
-      <!-- USD -->
-      <div class="card" style="animation-delay:0s" id="cardUsd">
-        <div class="top-line" id="topLineUsd"></div>
-        <div class="card-label">Aluminio LME · Dólares</div>
-        <div>
-          <span class="card-price" id="priceUsd" style="color:#f0f0f0">—</span>
-          <span class="card-unit" id="unitUsd">USD / Tn</span>
-        </div>
-        <div id="changeTag" class="change-tag pos" style="display:none"></div>
+    <div class="g3">
+      <div class="c" style="animation-delay:0s">
+        <div class="bar" id="barUsd" style="background:linear-gradient(90deg,var(--accent),transparent)"></div>
+        <div class="lb">Aluminio LME · Dólares</div>
+        <div><span class="pr" id="pUsd">—</span><span class="un" id="uUsd">USD / Tn</span></div>
+        <div class="ch pos" id="chTag" style="display:none"></div>
       </div>
-      <!-- EUR -->
-      <div class="card" style="animation-delay:0.08s">
-        <div class="top-line" style="background:linear-gradient(90deg,#6b7fff,transparent)"></div>
-        <div class="card-label">Aluminio LME · Euros</div>
-        <div>
-          <span class="card-price" id="priceEur" style="color:#c8d0ff">—</span>
-          <span class="card-unit" id="unitEur">EUR / Tn</span>
-        </div>
-        <div class="card-sub">Conversión automática USD → EUR</div>
+      <div class="c" style="animation-delay:.08s">
+        <div class="bar" style="background:linear-gradient(90deg,var(--blue),transparent)"></div>
+        <div class="lb">Aluminio LME · Euros</div>
+        <div><span class="pr" id="pEur" style="color:#c8d0ff">—</span><span class="un" id="uEur">EUR / Tn</span></div>
+        <div class="sub">Conversión automática USD → EUR</div>
       </div>
-      <!-- FX -->
-      <div class="card" style="animation-delay:0.16s">
-        <div class="top-line" style="background:linear-gradient(90deg,var(--accent),transparent)"></div>
-        <div class="card-label">Tipo de Cambio</div>
-        <div>
-          <span class="card-price" id="fxRate" style="color:#f0f0f0">—</span>
-          <span class="card-unit">EUR / USD</span>
-        </div>
-        <div class="fx-row">
-          <div class="fx-box">
-            <div class="fx-box-label">1 USD</div>
-            <div class="fx-box-val" id="fx1usd">—</div>
-          </div>
-          <div class="fx-box">
-            <div class="fx-box-label">1 EUR</div>
-            <div class="fx-box-val" id="fx1eur">—</div>
-          </div>
+      <div class="c" style="animation-delay:.16s">
+        <div class="bar" style="background:linear-gradient(90deg,var(--accent),transparent)"></div>
+        <div class="lb">Tipo de Cambio</div>
+        <div><span class="pr" id="fxR">—</span><span class="un">EUR / USD</span></div>
+        <div class="fxr">
+          <div class="fxb"><small>1 USD</small><strong id="fx1u">—</strong></div>
+          <div class="fxb"><small>1 EUR</small><strong id="fx1e">—</strong></div>
         </div>
       </div>
     </div>
-
-    <!-- HIGH/LOW -->
-    <div class="grid2" id="highLowSection" style="display:none">
-      <div class="card" style="animation-delay:0.2s">
-        <div class="top-line" style="background:linear-gradient(90deg,var(--green),transparent)"></div>
-        <div class="card-label">Máximo del Día</div>
-        <div class="card-price" id="highUsd" style="color:var(--green);font-size:24px">—</div>
-        <div class="card-sub" id="highEur">—</div>
+    <div class="g2" id="hlSec" style="display:none">
+      <div class="c" style="animation-delay:.2s">
+        <div class="bar" style="background:linear-gradient(90deg,var(--green),transparent)"></div>
+        <div class="lb">Máximo del Día</div>
+        <div class="pr" id="hiU" style="color:var(--green);font-size:24px">—</div>
+        <div class="sub" id="hiE">—</div>
       </div>
-      <div class="card" style="animation-delay:0.24s">
-        <div class="top-line" style="background:linear-gradient(90deg,var(--red),transparent)"></div>
-        <div class="card-label">Mínimo del Día</div>
-        <div class="card-price" id="lowUsd" style="color:var(--red);font-size:24px">—</div>
-        <div class="card-sub" id="lowEur">—</div>
+      <div class="c" style="animation-delay:.24s">
+        <div class="bar" style="background:linear-gradient(90deg,var(--red),transparent)"></div>
+        <div class="lb">Mínimo del Día</div>
+        <div class="pr" id="loU" style="color:var(--red);font-size:24px">—</div>
+        <div class="sub" id="loE">—</div>
       </div>
     </div>
-
-    <!-- CONVERSION TABLE -->
-    <div class="card" style="animation-delay:0.28s;margin-bottom:18px">
-      <div class="card-label">Tabla de Conversión</div>
-      <div class="conv-header">
-        <span>UNIDAD</span><span>USD</span><span>EUR</span>
-      </div>
-      <div class="conv-row"><span class="label">Tonelada</span><span class="usd" id="convTnUsd">—</span><span class="eur" id="convTnEur">—</span></div>
-      <div class="conv-row"><span class="label">Kilogramo</span><span class="usd" id="convKgUsd">—</span><span class="eur" id="convKgEur">—</span></div>
-      <div class="conv-row" style="border-bottom:none"><span class="label">Libra (lb)</span><span class="usd" id="convLbUsd">—</span><span class="eur" id="convLbEur">—</span></div>
+    <div class="c" style="animation-delay:.28s;margin-bottom:18px">
+      <div class="lb">Tabla de Conversión</div>
+      <div class="cvh"><span>UNIDAD</span><span>USD</span><span>EUR</span></div>
+      <div class="cvr"><span class="a">Tonelada</span><span class="b" id="cTu">—</span><span class="d" id="cTe">—</span></div>
+      <div class="cvr"><span class="a">Kilogramo</span><span class="b" id="cKu">—</span><span class="d" id="cKe">—</span></div>
+      <div class="cvr" style="border-bottom:none"><span class="a">Libra (lb)</span><span class="b" id="cLu">—</span><span class="d" id="cLe">—</span></div>
     </div>
-
-    <!-- FOOTER -->
-    <div class="footer">
-      <span id="lastUpdate">—</span>
-      <span>Auto-refresh cada 5 min</span>
-    </div>
-    <div class="disclaimer">ALUMINIO LME DASHBOARD · PRECIOS ORIENTATIVOS · NO CONSTITUYE ASESORAMIENTO FINANCIERO</div>
+    <div class="ft"><span id="ts">—</span><span>Auto-refresh cada 5 min</span></div>
+    <div class="disc">ALUMINIO LME DASHBOARD · PRECIOS ORIENTATIVOS · NO CONSTITUYE ASESORAMIENTO FINANCIERO</div>
   </div>
 </div>
-
 <script>
-// ============================================================
-// STATE
-// ============================================================
-let currentData = null;
-let currentUnit = 'tn';
-let countdownSec = 300;
-let countdownInterval = null;
-let refreshInterval = null;
+var API_KEY='JUKFYIPA8OXPLT4BCDQD2074BCDQD';
+var TOZ_TO_TONNE=32150.7466;
+var D=null,unit='tn',cdSec=300,cdInt,rfInt;
 
-// ============================================================
-// FORMAT
-// ============================================================
-function fmt(n, d = 2) {
-  if (n == null || isNaN(n)) return '—';
-  return Number(n).toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+function $(id){return document.getElementById(id)}
+function fm(n,d){if(n==null||isNaN(n))return'—';d=d||2;return Number(n).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d})}
+
+function setStatus(s){
+  $('badge').className='badge '+s;
+  $('badgeTxt').textContent=s==='live'?'EN VIVO':s==='load'?'BUSCANDO...':'ERROR';
+  $('rbtn').disabled=s==='load';
+  $('rbtn').className='btn'+(s==='load'?' spin':'');
 }
 
-// ============================================================
-// EXTRACT JSON (robust)
-// ============================================================
-function extractJSON(text) {
-  if (!text) return null;
-  // 1. Direct parse
-  try { return JSON.parse(text.trim()); } catch(e) {}
-  // 2. Remove markdown
-  let c = text.replace(/```json\s*/gi,'').replace(/```\s*/gi,'').trim();
-  try { return JSON.parse(c); } catch(e) {}
-  // 3. Find JSON with aluminum_usd
-  let m = c.match(/\{[^{}]*"aluminum_usd"[^{}]*\}/);
-  if (m) try { return JSON.parse(m[0]); } catch(e) {}
-  // 4. Nested braces
-  m = c.match(/\{[\s\S]*?"aluminum_usd"[\s\S]*?\}/);
-  if (m) try { return JSON.parse(m[0]); } catch(e) {}
-  // 5. First { to last }
-  const fi = c.indexOf('{'), la = c.lastIndexOf('}');
-  if (fi !== -1 && la > fi) try { return JSON.parse(c.substring(fi, la+1)); } catch(e) {}
-  // 6. Manual extraction
-  const aM = c.match(/aluminum_usd["\s:]+([0-9]+(?:\.[0-9]+)?)/i);
-  const eM = c.match(/usd_eur["\s:]+([0-9]+(?:\.[0-9]+)?)/i);
-  if (aM && eM) {
-    return {
-      aluminum_usd: parseFloat(aM[1]),
-      usd_eur: parseFloat(eM[1]),
-      change_usd: 0, change_pct: 0, high: 0, low: 0, source: 'extracted'
-    };
-  }
-  return null;
-}
+async function fetchData(){
+  setStatus('load');
+  $('ebox').style.display='none';
+  try{
+    // 1) Spot aluminum → price per troy ounce
+    var r1=await fetch('https://api.metals.dev/v1/metal/spot?api_key='+API_KEY+'&metal=aluminum&currency=USD');
+    if(!r1.ok)throw new Error('Error API spot: HTTP '+r1.status);
+    var j1=await r1.json();
+    if(j1.status!=='success')throw new Error(j1.error_message||'Error API spot');
+    var rt=j1.rate;
 
-// ============================================================
-// SET STATUS
-// ============================================================
-function setStatus(s) {
-  const badge = document.getElementById('statusBadge');
-  const text = document.getElementById('statusText');
-  const btn = document.getElementById('refreshBtn');
-  badge.className = 'status ' + s;
-  if (s === 'live') { text.textContent = 'EN VIVO'; }
-  else if (s === 'loading') { text.textContent = 'BUSCANDO...'; }
-  else { text.textContent = 'ERROR'; }
-  btn.disabled = (s === 'loading');
-  btn.className = 'btn' + (s === 'loading' ? ' loading' : '');
-}
+    // Convert troy ounce → metric tonne
+    var priceUsd=rt.price*TOZ_TO_TONNE;
+    var highUsd=(rt.high||0)*TOZ_TO_TONNE;
+    var lowUsd=(rt.low||0)*TOZ_TO_TONNE;
+    var changeUsd=(rt.change||0)*TOZ_TO_TONNE;
+    var changePct=rt.change_percent||0;
 
-// ============================================================
-// LOAD DATA VIA ANTHROPIC API WITH WEB SEARCH
-// ============================================================
-async function loadData() {
-  setStatus('loading');
-  document.getElementById('errorBox').style.display = 'none';
+    // 2) Latest rates → EUR exchange rate
+    var r2=await fetch('https://api.metals.dev/v1/latest?api_key='+API_KEY+'&currency=USD&unit=toz');
+    if(!r2.ok)throw new Error('Error API latest: HTTP '+r2.status);
+    var j2=await r2.json();
+    if(j2.status!=='success')throw new Error(j2.error_message||'Error API latest');
+    var eurRate=j2.currencies&&j2.currencies.EUR;
+    if(!eurRate)throw new Error('EUR no encontrado en respuesta');
 
-  // Try up to 3 times
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 300,
-          system: 'Respond with ONLY a JSON object. No other text whatsoever. No markdown. No explanation. Start with { end with }.',
-          messages: [{
-            role: 'user',
-            content: 'Search the web for the current LME aluminum price in USD per metric tonne and the current USD to EUR exchange rate. Respond with ONLY this JSON format, nothing else:\n{"aluminum_usd":NUMBER,"usd_eur":NUMBER,"change_usd":NUMBER,"change_pct":NUMBER,"high":NUMBER,"low":NUMBER,"source":"NAME"}\nwhere aluminum_usd is LME aluminum USD/tonne (typically 2500-3500), usd_eur is EUR per 1 USD (typically 0.85-0.98), change_usd and change_pct are today\'s change, high/low are today\'s range. ONLY the JSON.'
-          }],
-          tools: [{ type: 'web_search_20250305', name: 'web_search' }]
-        })
-      });
-
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error('API ' + res.status);
-      }
-
-      const json = await res.json();
-      const textParts = (json.content || []).filter(c => c.type === 'text').map(c => c.text);
-      const fullText = textParts.join('\n');
-
-      if (!fullText) {
-        if (attempt < 2) { await delay(2000); continue; }
-        throw new Error('Sin datos en la respuesta');
-      }
-
-      const parsed = extractJSON(fullText);
-      if (!parsed || !parsed.aluminum_usd) {
-        console.warn('Attempt ' + (attempt+1) + ' raw:', fullText);
-        if (attempt < 2) { await delay(2000); continue; }
-        throw new Error('No se pudieron extraer datos válidos');
-      }
-
-      // Validate
-      if (parsed.aluminum_usd < 500 || parsed.aluminum_usd > 15000) {
-        if (attempt < 2) { await delay(2000); continue; }
-        throw new Error('Precio fuera de rango: $' + parsed.aluminum_usd);
-      }
-      if (!parsed.usd_eur || parsed.usd_eur < 0.3 || parsed.usd_eur > 2) {
-        if (attempt < 2) { await delay(2000); continue; }
-        throw new Error('Tipo cambio inválido: ' + parsed.usd_eur);
-      }
-
-      // Success!
-      parsed.aluminum_eur = parsed.aluminum_usd * parsed.usd_eur;
-      parsed.high_eur = (parsed.high || 0) * parsed.usd_eur;
-      parsed.low_eur = (parsed.low || 0) * parsed.usd_eur;
-
-      currentData = parsed;
-      updateUI();
-      setStatus('live');
-      countdownSec = 300;
-      document.getElementById('skeleton').style.display = 'none';
-      document.getElementById('mainContent').style.display = 'block';
-      return; // SUCCESS - exit
-
-    } catch (e) {
-      console.error('Attempt ' + (attempt+1) + ' error:', e);
-      if (attempt === 2) {
-        showError(e.message);
-        setStatus('error');
-        // Still show UI if we have old data
-        if (currentData) {
-          document.getElementById('skeleton').style.display = 'none';
-          document.getElementById('mainContent').style.display = 'block';
-        }
-      }
-    }
+    D={priceUsd:priceUsd,priceEur:priceUsd*eurRate,eurRate:eurRate,change:changeUsd,changePct:changePct,high:highUsd,low:lowUsd,highEur:highUsd*eurRate,lowEur:lowUsd*eurRate};
+    updateUI();
+    setStatus('live');
+    cdSec=300;
+    $('skel').style.display='none';
+    $('main').style.display='block';
+  }catch(e){
+    console.error(e);
+    $('ebox').innerHTML='⚠ '+e.message+' — <a href="#" onclick="refresh();return false">Reintentar</a>';
+    $('ebox').style.display='block';
+    setStatus('err');
+    if(D){$('skel').style.display='none';$('main').style.display='block';}
   }
 }
 
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function updateUI(){
+  if(!D)return;
+  var dv=unit==='kg'?1000:1, ul=unit==='kg'?'/ Kg':'/ Tn';
+  $('pUsd').textContent='$'+fm(D.priceUsd/dv);
+  $('pEur').textContent='€'+fm(D.priceEur/dv);
+  $('uUsd').textContent='USD '+ul;
+  $('uEur').textContent='EUR '+ul;
+  $('fxR').textContent=fm(D.eurRate,4);
+  $('fx1u').textContent=fm(D.eurRate,4)+' €';
+  $('fx1e').textContent=fm(1/D.eurRate,4)+' $';
 
-function showError(msg) {
-  const box = document.getElementById('errorBox');
-  box.innerHTML = '⚠ ' + msg + ' — <a href="#" onclick="loadData();return false" style="color:#ffaa00;text-decoration:underline">Reintentar</a>';
-  box.style.display = 'block';
-}
+  var ch=D.change||0,cp=D.changePct||0,tag=$('chTag');
+  if(ch!==0||cp!==0){
+    var pos=cp>=0;
+    tag.className='ch '+(pos?'pos':'neg');
+    tag.textContent=(pos?'▲':'▼')+' '+(pos?'+':'')+fm(Math.abs(ch)/dv)+' ('+(pos?'+':'')+fm(cp)+'%)';
+    tag.style.display='inline-flex';
+    $('barUsd').style.background='linear-gradient(90deg,'+(pos?'var(--green)':'var(--red)')+',transparent)';
+  }else{tag.style.display='none';$('barUsd').style.background='linear-gradient(90deg,var(--accent),transparent)'}
 
-// ============================================================
-// UPDATE UI
-// ============================================================
-function updateUI() {
-  if (!currentData) return;
-  const d = currentData;
-  const div = currentUnit === 'kg' ? 1000 : 1;
-  const uLabel = currentUnit === 'kg' ? '/ Kg' : '/ Tn';
-
-  // Prices
-  document.getElementById('priceUsd').textContent = '$' + fmt(d.aluminum_usd / div);
-  document.getElementById('priceEur').textContent = '€' + fmt(d.aluminum_eur / div);
-  document.getElementById('unitUsd').textContent = 'USD ' + uLabel;
-  document.getElementById('unitEur').textContent = 'EUR ' + uLabel;
-
-  // FX
-  document.getElementById('fxRate').textContent = fmt(d.usd_eur, 4);
-  document.getElementById('fx1usd').textContent = fmt(d.usd_eur, 4) + ' €';
-  document.getElementById('fx1eur').textContent = fmt(1 / d.usd_eur, 4) + ' $';
-
-  // Change
-  const chg = d.change_usd || 0;
-  const chgP = d.change_pct || 0;
-  const tag = document.getElementById('changeTag');
-  if (chg !== 0 || chgP !== 0) {
-    const pos = chgP >= 0;
-    tag.className = 'change-tag ' + (pos ? 'pos' : 'neg');
-    const arrow = pos ? '▲' : '▼';
-    const sign = pos ? '+' : '';
-    tag.textContent = arrow + ' ' + sign + fmt(Math.abs(chg) / div) + ' (' + sign + fmt(chgP) + '%)';
-    tag.style.display = 'inline-flex';
-    // Top line color
-    const lineColor = pos ? 'var(--green)' : 'var(--red)';
-    document.getElementById('topLineUsd').style.background = 'linear-gradient(90deg,' + lineColor + ',transparent)';
-  } else {
-    tag.style.display = 'none';
-    document.getElementById('topLineUsd').style.background = 'linear-gradient(90deg,var(--accent),transparent)';
+  if(D.high>0&&D.low>0){
+    $('hlSec').style.display='grid';
+    $('hiU').textContent='$'+fm(D.high/dv);$('hiE').textContent='€'+fm(D.highEur/dv);
+    $('loU').textContent='$'+fm(D.low/dv);$('loE').textContent='€'+fm(D.lowEur/dv);
   }
 
-  // High/Low
-  const hi = (d.high || 0) / div;
-  const lo = (d.low || 0) / div;
-  if (hi > 0 && lo > 0) {
-    document.getElementById('highLowSection').style.display = 'grid';
-    document.getElementById('highUsd').textContent = '$' + fmt(hi);
-    document.getElementById('highEur').textContent = '€' + fmt((d.high_eur || 0) / div);
-    document.getElementById('lowUsd').textContent = '$' + fmt(lo);
-    document.getElementById('lowEur').textContent = '€' + fmt((d.low_eur || 0) / div);
-  }
-
-  // Conversion table (always in per-tonne base)
-  document.getElementById('convTnUsd').textContent = '$' + fmt(d.aluminum_usd);
-  document.getElementById('convTnEur').textContent = '€' + fmt(d.aluminum_eur);
-  document.getElementById('convKgUsd').textContent = '$' + fmt(d.aluminum_usd / 1000, 4);
-  document.getElementById('convKgEur').textContent = '€' + fmt(d.aluminum_eur / 1000, 4);
-  document.getElementById('convLbUsd').textContent = '$' + fmt(d.aluminum_usd / 2204.62, 4);
-  document.getElementById('convLbEur').textContent = '€' + fmt(d.aluminum_eur / 2204.62, 4);
-
-  // Timestamp
-  const now = new Date();
-  document.getElementById('lastUpdate').textContent =
-    'Última actualización: ' + now.toLocaleString('es-ES') +
-    (d.source ? ' · Fuente: ' + d.source : '');
+  $('cTu').textContent='$'+fm(D.priceUsd);$('cTe').textContent='€'+fm(D.priceEur);
+  $('cKu').textContent='$'+fm(D.priceUsd/1000,4);$('cKe').textContent='€'+fm(D.priceEur/1000,4);
+  $('cLu').textContent='$'+fm(D.priceUsd/2204.62,4);$('cLe').textContent='€'+fm(D.priceEur/2204.62,4);
+  $('ts').textContent='Última actualización: '+new Date().toLocaleString('es-ES');
 }
 
-// ============================================================
-// UNIT TOGGLE
-// ============================================================
-function setUnit(u) {
-  currentUnit = u;
-  document.getElementById('btnTn').className = 'unit-btn' + (u === 'tn' ? ' active' : '');
-  document.getElementById('btnKg').className = 'unit-btn' + (u === 'kg' ? ' active' : '');
-  updateUI();
-}
+function setU(u){unit=u;$('bTn').className='ubtn'+(u==='tn'?' on':'');$('bKg').className='ubtn'+(u==='kg'?' on':'');updateUI()}
+function refresh(){cdSec=300;fetchData()}
 
-// ============================================================
-// COUNTDOWN
-// ============================================================
-function startCountdown() {
-  if (countdownInterval) clearInterval(countdownInterval);
-  countdownInterval = setInterval(() => {
-    countdownSec = Math.max(0, countdownSec - 1);
-    const mm = Math.floor(countdownSec / 60);
-    const ss = String(countdownSec % 60).padStart(2, '0');
-    document.getElementById('countdown').textContent = 'Próxima actualización: ' + mm + ':' + ss;
-  }, 1000);
-}
-
-// ============================================================
-// INIT
-// ============================================================
-function init() {
-  loadData();
-  startCountdown();
-  // Auto-refresh every 5 minutes
-  refreshInterval = setInterval(() => {
-    countdownSec = 300;
-    loadData();
-  }, 5 * 60 * 1000);
-}
-
-init();
+cdInt=setInterval(function(){cdSec=Math.max(0,cdSec-1);var m=Math.floor(cdSec/60),s=String(cdSec%60).padStart(2,'0');$('cd').textContent='Próxima actualización: '+m+':'+s},1000);
+rfInt=setInterval(function(){cdSec=300;fetchData()},300000);
+fetchData();
 </script>
 </body>
 </html>
