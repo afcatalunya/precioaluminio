@@ -136,7 +136,6 @@ body{background:var(--bg);color:#e0e0e0;font-family:var(--sans);min-height:100vh
 </div>
 <script>
 var API_KEY='JUKFYIPA8OXPLT4BCDQD2074BCDQD';
-var TOZ_TO_TONNE=32150.7466;
 var D=null,unit='tn',cdSec=300,cdInt,rfInt;
 
 function $(id){return document.getElementById(id)}
@@ -153,22 +152,22 @@ async function fetchData(){
   setStatus('load');
   $('ebox').style.display='none';
   try{
-    // 1) Spot aluminum → price per troy ounce
+    // 1) Spot aluminum price (returns per metric tonne for industrial metals)
     var r1=await fetch('https://api.metals.dev/v1/metal/spot?api_key='+API_KEY+'&metal=aluminum&currency=USD');
     if(!r1.ok)throw new Error('Error API spot: HTTP '+r1.status);
     var j1=await r1.json();
     if(j1.status!=='success')throw new Error(j1.error_message||'Error API spot');
     var rt=j1.rate;
 
-    // Convert troy ounce → metric tonne
-    var priceUsd=rt.price*TOZ_TO_TONNE;
-    var highUsd=(rt.high||0)*TOZ_TO_TONNE;
-    var lowUsd=(rt.low||0)*TOZ_TO_TONNE;
-    var changeUsd=(rt.change||0)*TOZ_TO_TONNE;
+    // Price already in USD per metric tonne - use directly
+    var priceUsd=rt.price;
+    var highUsd=(rt.high||0);
+    var lowUsd=(rt.low||0);
+    var changeUsd=(rt.change||0);
     var changePct=rt.change_percent||0;
 
     // 2) Latest rates → EUR exchange rate
-    var r2=await fetch('https://api.metals.dev/v1/latest?api_key='+API_KEY+'&currency=USD&unit=toz');
+    var r2=await fetch('https://api.metals.dev/v1/latest?api_key='+API_KEY+'&currency=USD');
     if(!r2.ok)throw new Error('Error API latest: HTTP '+r2.status);
     var j2=await r2.json();
     if(j2.status!=='success')throw new Error(j2.error_message||'Error API latest');
